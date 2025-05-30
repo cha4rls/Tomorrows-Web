@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Portfolio</title>
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <!-- Navigation -->
@@ -29,6 +34,24 @@
     <!-- Admin Panel -->
     <div class="admin-panel" id="adminPanel">
         <h2>Admin Panel</h2>
+        
+        <!-- Firebase Authentication Status -->
+        <div class="admin-section">
+            <h3>Authentication Status</h3>
+            <div id="authStatus">Not logged in</div>
+            <div id="firebaseAuth" style="display: none;">
+                <div class="form-group">
+                    <label>Admin Email:</label>
+                    <input type="email" id="firebaseEmail" placeholder="your-admin@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Admin Password:</label>
+                    <input type="password" id="firebasePassword" placeholder="Your secure password">
+                </div>
+                <button class="btn" onclick="firebaseLogin()">Login with Firebase</button>
+                <button class="btn btn-secondary" onclick="firebaseLogout()">Logout</button>
+            </div>
+        </div>
         
         <div class="admin-section">
             <h3>Profile Settings</h3>
@@ -83,7 +106,9 @@
         </div>
 
         <div class="admin-section">
-            <button class="btn" onclick="toggleTestimonialModeration()">Toggle Testimonial Moderation</button>
+            <h3>Testimonial Management</h3>
+            <button class="btn" onclick="loadPendingTestimonials()">View Pending Testimonials</button>
+            <div id="pendingTestimonials" style="margin-top: 15px;"></div>
         </div>
     </div>
 
@@ -216,6 +241,7 @@
                     </div>
                     <button type="submit" class="btn">Submit Testimonial</button>
                 </form>
+                <div id="testimonialStatus" style="margin-top: 15px;"></div>
             </div>
         </div>
     </section>
@@ -244,6 +270,7 @@
                     </div>
                     <button type="submit" class="btn">Send Message</button>
                 </form>
+                <div id="contactStatus" style="margin-top: 15px;"></div>
             </div>
         </div>
     </section>
@@ -257,33 +284,113 @@
     </div>
 
     <script>
+        // Firebase Configuration - REPLACE WITH YOUR ACTUAL CONFIG
+            const firebaseConfig = {
+    apiKey: "AIzaSyCR0E6LE9DIwHPV5LQP-MhCn8LLCTIgSGA",
+    authDomain: "my-awesome-portfolio-6eca1.firebaseapp.com",
+    projectId: "my-awesome-portfolio-6eca1",
+    storageBucket: "my-awesome-portfolio-6eca1.firebasestorage.app",
+    messagingSenderId: "404489279066",
+    appId: "1:404489279066:web:f8f244f491334fb9efea63",
+    measurementId: "G-KELCE11P82"
+    };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // Your admin UID
+        const ADMIN_UID = "2cnh9Yzukve3IAUJdILvtAHEe9y1";
+
         // Global variables
         let isAdminMode = false;
         let isGalleryEditMode = false;
         let adminAuthenticated = false;
+        let firebaseUser = null;
         
         // Initialize the website
         document.addEventListener('DOMContentLoaded', function() {
             loadProfile();
-            loadTestimonials();
+            loadTestimonialsFromFirebase();
             loadSocialLinks();
             setupScrollEffects();
             setupSmoothScrolling();
+            setupFirebaseAuth();
         });
 
-        // Admin authentication
-        function toggleAdmin() {
-            if (!adminAuthenticated) {
-                const password = prompt('Enter admin password:');
-                if (password === 'admin123') { // Simple password - you can change this
+        // Firebase Authentication Setup
+        function setupFirebaseAuth() {
+            auth.onAuthStateChanged((user) => {
+                firebaseUser = user;
+                updateAuthStatus();
+                if (user && user.uid === ADMIN_UID) {
                     adminAuthenticated = true;
-                    document.getElementById('adminPanel').classList.add('open');
+                    isAdminMode = true;
+                    document.body.classList.add('admin-mode');
+                } else {
+                    adminAuthenticated = false;
+                    isAdminMode = false;
+                    document.body.classList.remove('admin-mode');
+                    document.getElementById('adminPanel').classList.remove('open');
+                }
+            });
+        }
+
+        function updateAuthStatus() {
+            const statusDiv = document.getElementById('authStatus');
+            if (firebaseUser) {
+                statusDiv.innerHTML = `✅ Logged in as: ${firebaseUser.email}`;
+                statusDiv.style.color = 'green';
+            } else {
+                statusDiv.innerHTML = '❌ Not logged in to Firebase';
+                statusDiv.style.color = 'red';
+            }
+        }
+
+        async function firebaseLogin() {
+            const email = document.getElementById('firebaseEmail').value;
+            const password = document.getElementById('firebasePassword').value;
+            
+            if (!email || !password) {
+                alert('Please enter both email and password');
+                return;
+            }
+            
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                if (userCredential.user.uid === ADMIN_UID) {
+                    alert('Successfully logged in as admin!');
                     loadAdminData();
                 } else {
-                    alert('Incorrect password');
+                    alert('Access denied. You are not authorized as admin.');
+                    await auth.signOut();
                 }
+            } catch (error) {
+                alert('Login failed: ' + error.message);
+            }
+        }
+
+        async function firebaseLogout() {
+            try {
+                await auth.signOut();
+                alert('Successfully logged out');
+            } catch (error) {
+                alert('Logout failed: ' + error.message);
+            }
+        }
+
+        // Admin authentication (enhanced with Firebase)
+        function toggleAdmin() {
+            if (!adminAuthenticated) {
+                // Show Firebase login instead of simple password
+                document.getElementById('firebaseAuth').style.display = 'block';
+                document.getElementById('adminPanel').classList.add('open');
             } else {
                 document.getElementById('adminPanel').classList.toggle('open');
+                if (document.getElementById('adminPanel').classList.contains('open')) {
+                    loadAdminData();
+                }
             }
         }
 
@@ -301,21 +408,45 @@
             document.getElementById('adminSpotify').value = socialLinks.spotify || '';
         }
 
-        // Update profile
-        function updateProfile() {
+        // Update profile (enhanced to save to Firebase)
+        async function updateProfile() {
+            if (!adminAuthenticated) {
+                alert('Please login as admin first');
+                return;
+            }
+            
             const profile = {
                 name: document.getElementById('adminName').value || 'Your Name',
                 bio: document.getElementById('adminBio').value || 'Web Developer & Creative Professional',
-                profilePic: document.getElementById('adminProfilePic').value || 'https://via.placeholder.com/200x200/333/fff?text=Photo'
+                profilePic: document.getElementById('adminProfilePic').value || 'https://via.placeholder.com/200x200/333/fff?text=Photo',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             
-            localStorage.setItem('profile', JSON.stringify(profile));
-            loadProfile();
-            alert('Profile updated successfully!');
+            try {
+                await db.collection('admin').doc('profile').set(profile);
+                localStorage.setItem('profile', JSON.stringify(profile));
+                loadProfile();
+                alert('Profile updated successfully!');
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('Error updating profile: ' + error.message);
+            }
         }
 
-        // Load profile data
-        function loadProfile() {
+        // Load profile data (enhanced to load from Firebase)
+        async function loadProfile() {
+            try {
+                if (adminAuthenticated) {
+                    const doc = await db.collection('admin').doc('profile').get();
+                    if (doc.exists) {
+                        const profile = doc.data();
+                        localStorage.setItem('profile', JSON.stringify(profile));
+                    }
+                }
+            } catch (error) {
+                console.log('Loading from localStorage fallback');
+            }
+            
             const profile = JSON.parse(localStorage.getItem('profile') || '{}');
             
             document.getElementById('heroName').textContent = profile.name || 'Your Name';
@@ -327,27 +458,48 @@
             }
         }
 
-        // Update social links
-        function updateSocialLinks() {
+        // Update social links (enhanced to save to Firebase)
+        async function updateSocialLinks() {
+            if (!adminAuthenticated) {
+                alert('Please login as admin first');
+                return;
+            }
+            
             const socialLinks = {
                 linkedin: document.getElementById('adminLinkedIn').value,
                 facebook: document.getElementById('adminFacebook').value,
                 instagram: document.getElementById('adminInstagram').value,
-                spotify: document.getElementById('adminSpotify').value
+                spotify: document.getElementById('adminSpotify').value,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             
-            console.log('Updating social links:', socialLinks); // Debug log
-            localStorage.setItem('socialLinks', JSON.stringify(socialLinks));
-            loadSocialLinks();
-            alert('Social links updated successfully!');
+            try {
+                await db.collection('admin').doc('socialLinks').set(socialLinks);
+                localStorage.setItem('socialLinks', JSON.stringify(socialLinks));
+                loadSocialLinks();
+                alert('Social links updated successfully!');
+            } catch (error) {
+                console.error('Error updating social links:', error);
+                alert('Error updating social links: ' + error.message);
+            }
         }
 
-        // Load social links
-        function loadSocialLinks() {
+        // Load social links (enhanced to load from Firebase)
+        async function loadSocialLinks() {
+            try {
+                if (adminAuthenticated) {
+                    const doc = await db.collection('admin').doc('socialLinks').get();
+                    if (doc.exists) {
+                        const socialLinks = doc.data();
+                        localStorage.setItem('socialLinks', JSON.stringify(socialLinks));
+                    }
+                }
+            } catch (error) {
+                console.log('Loading from localStorage fallback');
+            }
+            
             const socialLinks = JSON.parse(localStorage.getItem('socialLinks') || '{}');
             const socialLinksContainer = document.getElementById('socialLinks');
-            
-            console.log('Loading social links:', socialLinks); // Debug log
             
             const links = [
                 { key: 'linkedin', icon: '💼', title: 'LinkedIn' },
@@ -367,7 +519,7 @@
                 if (socialLinks[link.key] && socialLinks[link.key].trim() !== '') {
                     a.href = socialLinks[link.key];
                     a.target = '_blank';
-                    a.onclick = null; // Remove click handler
+                    a.onclick = null;
                 } else {
                     a.href = '#';
                     a.onclick = (e) => {
@@ -380,6 +532,7 @@
             });
         }
 
+        // Gallery functions (keeping localStorage for now)
         function addGalleryImage() {
             const imageUrl = document.getElementById('newGalleryImage').value;
             const imageTitle = document.getElementById('newGalleryTitle').value;
@@ -457,7 +610,7 @@
 
         function loadGallery() {
             const galleryData = JSON.parse(localStorage.getItem('galleryData') || '[]');
-            if (galleryData.length === 0) return; // Keep default images if no saved data
+            if (galleryData.length === 0) return;
             
             const gallery = document.getElementById('gallery');
             gallery.innerHTML = '';
@@ -476,8 +629,6 @@
             });
         }
 
-        // Gallery navigation - Removed since we're using grid layout now
-
         // Modal functionality
         function openModal(element) {
             const img = element.querySelector('img');
@@ -493,8 +644,8 @@
             document.getElementById('imageModal').classList.remove('active');
         }
 
-        // Testimonials
-        function submitTestimonial(event) {
+        // Testimonials with Firebase
+        async function submitTestimonial(event) {
             event.preventDefault();
             
             const name = document.getElementById('testimonialName').value;
@@ -504,58 +655,180 @@
             const message = document.getElementById('testimonialMessage').value;
             
             const testimonial = {
-                id: Date.now(),
                 name: isAnonymous ? 'Anonymous' : name,
                 role: role,
                 rating: rating,
                 message: message,
+                approved: false, // Requires admin approval
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 date: new Date().toLocaleDateString()
             };
             
-            let testimonials = JSON.parse(localStorage.getItem('testimonials') || '[]');
-            testimonials.unshift(testimonial);
-            localStorage.setItem('testimonials', JSON.stringify(testimonials));
+            const statusDiv = document.getElementById('testimonialStatus');
+            statusDiv.innerHTML = '<div style="color: blue;">Submitting testimonial...</div>';
             
-            loadTestimonials();
-            
-            // Reset form
-            event.target.reset();
-            alert('Thank you for your testimonial!');
+            try {
+                await db.collection('testimonials').add(testimonial);
+                statusDiv.innerHTML = '<div style="color: green;">✅ Thank you! Your testimonial has been submitted and will appear after admin approval.</div>';
+                event.target.reset();
+            } catch (error) {
+                console.error('Error submitting testimonial:', error);
+                statusDiv.innerHTML = '<div style="color: red;">❌ Error submitting testimonial. Please try again.</div>';
+            }
         }
 
-        function loadTestimonials() {
-            let testimonials = JSON.parse(localStorage.getItem('testimonials') || '[]');
-            
-            // Add default testimonials if none exist
-            if (testimonials.length === 0) {
-                testimonials = [
-                    {
-                        id: 1,
-                        name: "Sarah Johnson",
-                        role: "Classmate",
-                        rating: "5",
-                        message: "Amazing work ethic and incredible attention to detail. Always delivers high-quality projects on time!",
-                        date: new Date().toLocaleDateString()
-                    },
-                    {
-                        id: 2,
-                        name: "Mike Chen",
-                        role: "Friend",
-                        rating: "5",
-                        message: "Creative problem solver with excellent communication skills. A pleasure to work with!",
-                        date: new Date().toLocaleDateString()
-                    },
-                    {
-                        id: 3,
-                        name: "Anonymous",
-                        role: "Colleague",
-                        rating: "4",
-                        message: "Highly skilled developer with a passion for innovation. Brings fresh ideas to every project.",
-                        date: new Date().toLocaleDateString()
-                    }
-                ];
-                localStorage.setItem('testimonials', JSON.stringify(testimonials));
+        async function loadTestimonialsFromFirebase() {
+            try {
+                // Load approved testimonials for public display
+                const snapshot = await db.collection('testimonials')
+                    .where('approved', '==', true)
+                    .orderBy('timestamp', 'desc')
+                    .get();
+
+                const grid = document.getElementById('testimonialsGrid');
+                grid.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    // Show default testimonials if no Firebase testimonials exist
+                    loadDefaultTestimonials();
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const testimonial = doc.data();
+                    const testimonialDiv = document.createElement('div');
+                    testimonialDiv.className = 'testimonial';
+                    
+                    const stars = '⭐'.repeat(parseInt(testimonial.rating));
+                    
+                    testimonialDiv.innerHTML = `
+                        <div class="testimonial-content">"${testimonial.message}"</div>
+                        <div class="testimonial-author">${testimonial.name}</div>
+                        <div class="testimonial-role">${testimonial.role} • ${stars}</div>
+                        <div class="testimonial-date">${testimonial.date}</div>
+                        ${adminAuthenticated ? `<button class="delete-btn" onclick="deleteFirebaseTestimonial('${doc.id}')">×</button>` : ''}
+                    `;
+                    
+                    grid.appendChild(testimonialDiv);
+                });
+            } catch (error) {
+                console.error('Error loading testimonials:', error);
+                loadDefaultTestimonials();
             }
+        }
+
+        async function loadPendingTestimonials() {
+            if (!adminAuthenticated) {
+                alert('Please login as admin first');
+                return;
+            }
+            
+            try {
+                const snapshot = await db.collection('testimonials')
+                    .where('approved', '==', false)
+                    .orderBy('timestamp', 'desc')
+                    .get();
+
+                const container = document.getElementById('pendingTestimonials');
+                
+                if (snapshot.empty) {
+                    container.innerHTML = '<p style="color: #666;">No pending testimonials.</p>';
+                    return;
+                }
+
+                container.innerHTML = '<h4>Pending Testimonials:</h4>';
+                snapshot.forEach(doc => {
+                    const testimonial = doc.data();
+                    const testimonialDiv = document.createElement('div');
+                    testimonialDiv.style.cssText = 'background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #orange;';
+                    
+                    const stars = '⭐'.repeat(parseInt(testimonial.rating));
+                    
+                    testimonialDiv.innerHTML = `
+                        <div><strong>"${testimonial.message}"</strong></div>
+                        <div style="margin: 10px 0;">- ${testimonial.name} (${testimonial.role}) • ${stars}</div>
+                        <div style="font-size: 0.9em; color: #666;">${testimonial.date}</div>
+                        <div style="margin-top: 10px;">
+                            <button class="btn" style="background: green; margin-right: 10px;" onclick="approveTestimonial('${doc.id}')">✅ Approve</button>
+                            <button class="btn" style="background: red;" onclick="rejectTestimonial('${doc.id}')">❌ Reject</button>
+                        </div>
+                    `;
+                    
+                    container.appendChild(testimonialDiv);
+                });
+            } catch (error) {
+                console.error('Error loading pending testimonials:', error);
+                document.getElementById('pendingTestimonials').innerHTML = '<p style="color: red;">Error loading pending testimonials.</p>';
+            }
+        }
+
+        async function approveTestimonial(docId) {
+            try {
+                await db.collection('testimonials').doc(docId).update({
+                    approved: true,
+                    approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                loadPendingTestimonials();
+                loadTestimonialsFromFirebase(); // Refresh approved testimonials
+                alert('Testimonial approved!');
+            } catch (error) {
+                alert('Error approving testimonial: ' + error.message);
+            }
+        }
+
+        async function rejectTestimonial(docId) {
+            if (confirm('Are you sure you want to reject this testimonial?')) {
+                try {
+                    await db.collection('testimonials').doc(docId).delete();
+                    loadPendingTestimonials();
+                    alert('Testimonial rejected and deleted.');
+                } catch (error) {
+                    alert('Error rejecting testimonial: ' + error.message);
+                }
+            }
+        }
+
+        async function deleteFirebaseTestimonial(docId) {
+            if (!adminAuthenticated) return;
+            
+            if (confirm('Are you sure you want to delete this testimonial?')) {
+                try {
+                    await db.collection('testimonials').doc(docId).delete();
+                    loadTestimonialsFromFirebase();
+                    alert('Testimonial deleted.');
+                } catch (error) {
+                    alert('Error deleting testimonial: ' + error.message);
+                }
+            }
+        }
+
+        function loadDefaultTestimonials() {
+            const testimonials = [
+                {
+                    id: 1,
+                    name: "Sarah Johnson",
+                    role: "Classmate",
+                    rating: "5",
+                    message: "Amazing work ethic and incredible attention to detail. Always delivers high-quality projects on time!",
+                    date: new Date().toLocaleDateString()
+                },
+                {
+                    id: 2,
+                    name: "Mike Chen",
+                    role: "Friend",
+                    rating: "5",
+                    message: "Creative problem solver with excellent communication skills. A pleasure to work with!",
+                    date: new Date().toLocaleDateString()
+                },
+                {
+                    id: 3,
+                    name: "Anonymous",
+                    role: "Colleague",
+                    rating: "4",
+                    message: "Highly skilled developer with a passion for innovation. Brings fresh ideas to every project.",
+                    date: new Date().toLocaleDateString()
+                }
+            ];
             
             const grid = document.getElementById('testimonialsGrid');
             grid.innerHTML = '';
@@ -571,30 +844,14 @@
                     <div class="testimonial-author">${testimonial.name}</div>
                     <div class="testimonial-role">${testimonial.role} • ${stars}</div>
                     <div class="testimonial-date">${testimonial.date}</div>
-                    <button class="delete-btn" onclick="deleteTestimonial(${testimonial.id})">×</button>
                 `;
                 
                 grid.appendChild(testimonialDiv);
             });
         }
 
-        function deleteTestimonial(id) {
-            if (confirm('Are you sure you want to delete this testimonial?')) {
-                let testimonials = JSON.parse(localStorage.getItem('testimonials') || '[]');
-                testimonials = testimonials.filter(t => t.id !== id);
-                localStorage.setItem('testimonials', JSON.stringify(testimonials));
-                loadTestimonials();
-            }
-        }
-
-        function toggleTestimonialModeration() {
-            isAdminMode = !isAdminMode;
-            document.body.classList.toggle('admin-mode', isAdminMode);
-            alert(isAdminMode ? 'Testimonial moderation enabled' : 'Testimonial moderation disabled');
-        }
-
-        // Contact form
-        function submitContact(event) {
+        // Contact form with Firebase
+        async function submitContact(event) {
             event.preventDefault();
             
             const name = document.getElementById('contactName').value;
@@ -602,11 +859,27 @@
             const subject = document.getElementById('contactSubject').value;
             const message = document.getElementById('contactMessage').value;
             
-            // In a real application, you would send this to a server
-            alert(`Thank you ${name}! Your message has been received. I'll get back to you soon.`);
+            const contactData = {
+                name: name,
+                email: email,
+                subject: subject,
+                message: message,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                read: false,
+                date: new Date().toLocaleDateString()
+            };
             
-            // Reset form
-            event.target.reset();
+            const statusDiv = document.getElementById('contactStatus');
+            statusDiv.innerHTML = '<div style="color: blue;">Sending message...</div>';
+            
+            try {
+                await db.collection('contacts').add(contactData);
+                statusDiv.innerHTML = '<div style="color: green;">✅ Thank you! Your message has been sent successfully. I\'ll get back to you soon.</div>';
+                event.target.reset();
+            } catch (error) {
+                console.error('Error sending message:', error);
+                statusDiv.innerHTML = '<div style="color: red;">❌ Error sending message. Please try again.</div>';
+            }
         }
 
         // Theme toggle
@@ -686,6 +959,7 @@
                     const profile = JSON.parse(localStorage.getItem('profile') || '{}');
                     profile.profilePic = newUrl;
                     localStorage.setItem('profile', JSON.stringify(profile));
+                    updateProfile(); // Save to Firebase too
                 }
             }
         }
@@ -731,5 +1005,100 @@
             });
         });
     </script>
+
+    <style>
+        /* Additional styles for Firebase integration */
+        .admin-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        #authStatus {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .testimonial {
+            position: relative;
+        }
+        
+        .admin-mode .delete-btn {
+            display: block;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+    </style>
 </body>
 </html>
