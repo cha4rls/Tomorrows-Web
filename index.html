@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <!-- Admin Toggle -->
+            <button class="admin-toggle" onclick="toggleAdmin()">⚙️</button>
+            
+            <ul>
+                <li><a href="#home" onclick="scrollToSection('home')">Home</a></li>
+                <li><a href="#about" onclick="scrollToSection('about')">About</a></li>
+                <li><a href="#gallery" onclick="scrollToSection('gallery')">Gallery</a></li>
+                <li><a href="#testimonials" onclick="scrollToSection('testimonials')">Testimonials</a></li>
+                <li><a href="#contact" onclick="scrollToSection('contact')">Contact</a></li>
+            </ul>
+            
+            <!-- Theme Toggle -->
+            <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        </div>
+    </nav>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <h2>Admin Panel</h2>
+        
+        <div class="admin-section">
+            <h3>Profile Settings</h3>
+            <div class="form-group">
+                <label>Name:</label>
+                <input type="text" id="adminName" placeholder="Your Name">
+            </div>
+            <div class="form-group">
+                <label>Bio:</label>
+                <textarea id="adminBio" rows="4" placeholder="Your bio..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Profile Picture URL:</label>
+                <input type="url" id="adminProfilePic" placeholder="https://...">
+            </div>
+            <button class="btn" onclick="updateProfile()">Update Profile</button>
+        </div>
+
+        <div class="admin-section">
+            <h3>Social Links</h3>
+            <div class="form-group">
+                <label>LinkedIn:</label>
+                <input type="url" id="adminLinkedIn" placeholder="https://linkedin.com/in/...">
+            </div>
+            <div class="form-group">
+                <label>Facebook:</label>
+                <input type="url" id="adminFacebook" placeholder="https://facebook.com/...">
+            </div>
+            <div class="form-group">
+                <label>Instagram:</label>
+                <input type="url" id="adminInstagram" placeholder="https://instagram.com/...">
+            </div>
+            <div class="form-group">
+                <label>Spotify:</label>
+                <input type="url" id="adminSpotify" placeholder="https://open.spotify.com/user/...">
+            </div>
+            <button class="btn" onclick="updateSocialLinks()">Update Links</button>
+        </div>
+
+        <div class="admin-section">
+            <h3>Gallery Management</h3>
+            <div class="form-group">
+                <label>Add Image URL:</label>
+                <input type="url" id="newGalleryImage" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label>Image Title:</label>
+                <input type="text" id="newGalleryTitle" placeholder="Image title...">
+            </div>
+            <button class="btn" onclick="addGalleryImage()">Add Image</button>
+            <button class="btn btn-secondary" onclick="toggleGalleryEdit()">Edit Mode</button>
+        </div>
+
+        <div class="admin-section">
+            <button class="btn" onclick="toggleTestimonialModeration()">Toggle Testimonial Moderation</button>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <img src="https://via.placeholder.com/200x200/333/fff?text=Photo" alt="Profile Picture" class="profile-pic" id="profilePic" onclick="changeProfilePic()">
+            <h1 id="heroName">Your Name</h1>
+            <p id="heroBio">Web Developer & Creative Professional</p>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section">
+        <div class="container">
+            <h2>About Me</h2>
+            <div class="about-content">
+                <div>
+                    <h3>Education & Background</h3>
+                    <p><strong>•Year 3 Creative Computing Student @ Bath Spa University RAK</strong><br>
+                        •Currently pursuing my degree with focus on web development.</p>
+                    
+                    <h3 style="margin-top: 30px;">Interests</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>🌐 Web Development</li>
+                        <li>🏀 Basketball</li>
+                        <li>🎵 Music</li>
+                        <li>🏎️ Cars</li>
+                        <li>🎮 Video Games</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="about-text" id="aboutText">
+                        I'm a passionate web developer with a keen eye for design and a love for creating innovative digital experiences. My journey in technology started with curiosity and has evolved into a career focused on building meaningful applications that solve real-world problems.
+                    </p>
+                    <div class="skills">
+                        <span class="skill-tag">HTML5</span>
+                        <span class="skill-tag">CSS3</span>
+                        <span class="skill-tag">JavaScript</span>
+                        <span class="skill-tag">React</span>
+                        <span class="skill-tag">Node.js</span>
+                        <span class="skill-tag">Python</span>
+                        <span class="skill-tag">Git</span>
+                        <span class="skill-tag">Responsive Design</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Social Links -->
+            <div class="social-links" id="socialLinks">
+                <a href="#" class="social-link" title="LinkedIn">💼</a>
+                <a href="#" class="social-link" title="Facebook">📘</a>
+                <a href="#" class="social-link" title="Instagram">📸</a>
+                <a href="#" class="social-link" title="Spotify">🎵</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="section">
+        <div class="container">
+            <h2>My Work</h2>
+            <div class="gallery-grid" id="gallery">
+                <div class="gallery-item" onclick="openModal(this)">
+                    <img src="https://via.placeholder.com/400x300/333/fff?text=Project+1" alt="Project 1">
+                </div>
+                <div class="gallery-item" onclick="openModal(this)">
+                    <img src="https://via.placeholder.com/400x300/666/fff?text=Project+2" alt="Project 2">
+                </div>
+                <div class="gallery-item" onclick="openModal(this)">
+                    <img src="https://via.placeholder.com/400x300/999/fff?text=Project+3" alt="Project 3">
+                </div>
+                <div class="gallery-item" onclick="openModal(this)">
+                    <img src="https://via.placeholder.com/400x300/333/fff?text=Project+4" alt="Project 4">
+                </div>
+                <div class="gallery-item" onclick="openModal(this)">
+                    <img src="https://via.placeholder.com/400x300/666/fff?text=Project+5" alt="Project 5">
+                </div>
+                <div class="gallery-item" onclick="openModal(this)">
+                    <img src="https://via.placeholder.com/400x300/999/fff?text=Project+6" alt="Project 6">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="section">
+        <div class="container">
+            <h2>What People Say</h2>
+            <div class="testimonials-grid" id="testimonialsGrid">
+                <!-- Testimonials will be loaded here -->
+            </div>
+            
+            <div class="testimonial-form">
+                <h3>Leave a Testimonial</h3>
+                <form onsubmit="submitTestimonial(event)">
+                    <div class="form-group">
+                        <label for="testimonialName">Your Name:</label>
+                        <input type="text" id="testimonialName" required>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="anonymous">
+                            <label for="anonymous">Post anonymously</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="testimonialRole">Your Role/Relationship:</label>
+                        <select id="testimonialRole">
+                            <option value="Friend">Friend</option>
+                            <option value="Classmate">Classmate</option>
+                            <option value="Colleague">Colleague</option>
+                            <option value="Client">Client</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="testimonialRating">Rating:</label>
+                        <select id="testimonialRating">
+                            <option value="5">⭐⭐⭐⭐⭐ (5 stars)</option>
+                            <option value="4">⭐⭐⭐⭐ (4 stars)</option>
+                            <option value="3">⭐⭐⭐ (3 stars)</option>
+                            <option value="2">⭐⭐ (2 stars)</option>
+                            <option value="1">⭐ (1 star)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="testimonialMessage">Your Message:</label>
+                        <textarea id="testimonialMessage" rows="4" required placeholder="Share your experience..."></textarea>
+                    </div>
+                    <button type="submit" class="btn">Submit Testimonial</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+        <div class="container">
+            <h2>Get In Touch</h2>
+            <div class="testimonial-form">
+                <form onsubmit="submitContact(event)">
+                    <div class="form-group">
+                        <label for="contactName">Your Name:</label>
+                        <input type="text" id="contactName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactEmail">Your Email:</label>
+                        <input type="email" id="contactEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactSubject">Subject:</label>
+                        <input type="text" id="contactSubject" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactMessage">Message:</label>
+                        <textarea id="contactMessage" rows="5" required placeholder="Your message..."></textarea>
+                    </div>
+                    <button type="submit" class="btn">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for Gallery -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <img id="modalImage" src="" alt="">
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let isAdminMode = false;
+        let isGalleryEditMode = false;
+        let adminAuthenticated = false;
+        
+        // Initialize the website
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProfile();
+            loadTestimonials();
+            loadSocialLinks();
+            setupScrollEffects();
+            setupSmoothScrolling();
+        });
+
+        // Admin authentication
+        function toggleAdmin() {
+            if (!adminAuthenticated) {
+                const password = prompt('Enter admin password:');
+                if (password === 'admin123') { // Simple password - you can change this
+                    adminAuthenticated = true;
+                    document.getElementById('adminPanel').classList.add('open');
+                    loadAdminData();
+                } else {
+                    alert('Incorrect password');
+                }
+            } else {
+                document.getElementById('adminPanel').classList.toggle('open');
+            }
+        }
+
+        // Load admin data into forms
+        function loadAdminData() {
+            const profile = JSON.parse(localStorage.getItem('profile') || '{}');
+            const socialLinks = JSON.parse(localStorage.getItem('socialLinks') || '{}');
+            
+            document.getElementById('adminName').value = profile.name || '';
+            document.getElementById('adminBio').value = profile.bio || '';
+            document.getElementById('adminProfilePic').value = profile.profilePic || '';
+            document.getElementById('adminLinkedIn').value = socialLinks.linkedin || '';
+            document.getElementById('adminFacebook').value = socialLinks.facebook || '';
+            document.getElementById('adminInstagram').value = socialLinks.instagram || '';
+            document.getElementById('adminSpotify').value = socialLinks.spotify || '';
+        }
+
+        // Update profile
+        function updateProfile() {
+            const profile = {
+                name: document.getElementById('adminName').value || 'Your Name',
+                bio: document.getElementById('adminBio').value || 'Web Developer & Creative Professional',
+                profilePic: document.getElementById('adminProfilePic').value || 'https://via.placeholder.com/200x200/333/fff?text=Photo'
+            };
+            
+            localStorage.setItem('profile', JSON.stringify(profile));
+            loadProfile();
+            alert('Profile updated successfully!');
+        }
+
+        // Load profile data
+        function loadProfile() {
+            const profile = JSON.parse(localStorage.getItem('profile') || '{}');
+            
+            document.getElementById('heroName').textContent = profile.name || 'Your Name';
+            document.getElementById('heroBio').textContent = profile.bio || 'Web Developer & Creative Professional';
+            document.getElementById('profilePic').src = profile.profilePic || 'https://via.placeholder.com/200x200/333/fff?text=Photo';
+            
+            if (profile.bio && profile.bio !== 'Web Developer & Creative Professional') {
+                document.getElementById('aboutText').textContent = profile.bio;
+            }
+        }
+
+        // Update social links
+        function updateSocialLinks() {
+            const socialLinks = {
+                linkedin: document.getElementById('adminLinkedIn').value,
+                facebook: document.getElementById('adminFacebook').value,
+                instagram: document.getElementById('adminInstagram').value,
+                spotify: document.getElementById('adminSpotify').value
+            };
+            
+            console.log('Updating social links:', socialLinks); // Debug log
+            localStorage.setItem('socialLinks', JSON.stringify(socialLinks));
+            loadSocialLinks();
+            alert('Social links updated successfully!');
+        }
+
+        // Load social links
+        function loadSocialLinks() {
+            const socialLinks = JSON.parse(localStorage.getItem('socialLinks') || '{}');
+            const socialLinksContainer = document.getElementById('socialLinks');
+            
+            console.log('Loading social links:', socialLinks); // Debug log
+            
+            const links = [
+                { key: 'linkedin', icon: '💼', title: 'LinkedIn' },
+                { key: 'facebook', icon: '📘', title: 'Facebook' },
+                { key: 'instagram', icon: '📸', title: 'Instagram' },
+                { key: 'spotify', icon: '🎵', title: 'Spotify' }
+            ];
+            
+            socialLinksContainer.innerHTML = '';
+            
+            links.forEach(link => {
+                const a = document.createElement('a');
+                a.className = 'social-link';
+                a.innerHTML = link.icon;
+                a.title = link.title;
+                
+                if (socialLinks[link.key] && socialLinks[link.key].trim() !== '') {
+                    a.href = socialLinks[link.key];
+                    a.target = '_blank';
+                    a.onclick = null; // Remove click handler
+                } else {
+                    a.href = '#';
+                    a.onclick = (e) => {
+                        e.preventDefault();
+                        alert(`${link.title} link not set. Please configure in admin panel.`);
+                    };
+                }
+                
+                socialLinksContainer.appendChild(a);
+            });
+        }
+
+        function addGalleryImage() {
+            const imageUrl = document.getElementById('newGalleryImage').value;
+            const imageTitle = document.getElementById('newGalleryTitle').value;
+            
+            if (!imageUrl) {
+                alert('Please enter an image URL');
+                return;
+            }
+            
+            const gallery = document.getElementById('gallery');
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-item';
+            galleryItem.onclick = () => openModal(galleryItem);
+            
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = imageTitle || 'Gallery Image';
+            galleryItem.appendChild(img);
+            
+            if (isGalleryEditMode) {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '×';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    galleryItem.remove();
+                    saveGallery();
+                };
+                galleryItem.appendChild(deleteBtn);
+            }
+            
+            gallery.appendChild(galleryItem);
+            saveGallery();
+            
+            document.getElementById('newGalleryImage').value = '';
+            document.getElementById('newGalleryTitle').value = '';
+            alert('Image added successfully!');
+        }
+
+        function toggleGalleryEdit() {
+            isGalleryEditMode = !isGalleryEditMode;
+            const gallery = document.getElementById('gallery');
+            const items = gallery.querySelectorAll('.gallery-item');
+            
+            items.forEach(item => {
+                let deleteBtn = item.querySelector('.delete-btn');
+                if (isGalleryEditMode && !deleteBtn) {
+                    deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.innerHTML = '×';
+                    deleteBtn.style.display = 'block';
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        item.remove();
+                        saveGallery();
+                    };
+                    item.appendChild(deleteBtn);
+                } else if (!isGalleryEditMode && deleteBtn) {
+                    deleteBtn.style.display = 'none';
+                }
+            });
+            
+            alert(isGalleryEditMode ? 'Gallery edit mode enabled' : 'Gallery edit mode disabled');
+        }
+
+        function saveGallery() {
+            const gallery = document.getElementById('gallery');
+            const items = gallery.querySelectorAll('.gallery-item img');
+            const galleryData = Array.from(items).map(img => ({
+                src: img.src,
+                alt: img.alt
+            }));
+            localStorage.setItem('galleryData', JSON.stringify(galleryData));
+        }
+
+        function loadGallery() {
+            const galleryData = JSON.parse(localStorage.getItem('galleryData') || '[]');
+            if (galleryData.length === 0) return; // Keep default images if no saved data
+            
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+            
+            galleryData.forEach(item => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                galleryItem.onclick = () => openModal(galleryItem);
+                
+                const img = document.createElement('img');
+                img.src = item.src;
+                img.alt = item.alt;
+                galleryItem.appendChild(img);
+                
+                gallery.appendChild(galleryItem);
+            });
+        }
+
+        // Gallery navigation - Removed since we're using grid layout now
+
+        // Modal functionality
+        function openModal(element) {
+            const img = element.querySelector('img');
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            
+            modalImg.src = img.src;
+            modalImg.alt = img.alt;
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').classList.remove('active');
+        }
+
+        // Testimonials
+        function submitTestimonial(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('testimonialName').value;
+            const isAnonymous = document.getElementById('anonymous').checked;
+            const role = document.getElementById('testimonialRole').value;
+            const rating = document.getElementById('testimonialRating').value;
+            const message = document.getElementById('testimonialMessage').value;
+            
+            const testimonial = {
+                id: Date.now(),
+                name: isAnonymous ? 'Anonymous' : name,
+                role: role,
+                rating: rating,
+                message: message,
+                date: new Date().toLocaleDateString()
+            };
+            
+            let testimonials = JSON.parse(localStorage.getItem('testimonials') || '[]');
+            testimonials.unshift(testimonial);
+            localStorage.setItem('testimonials', JSON.stringify(testimonials));
+            
+            loadTestimonials();
+            
+            // Reset form
+            event.target.reset();
+            alert('Thank you for your testimonial!');
+        }
+
+        function loadTestimonials() {
+            let testimonials = JSON.parse(localStorage.getItem('testimonials') || '[]');
+            
+            // Add default testimonials if none exist
+            if (testimonials.length === 0) {
+                testimonials = [
+                    {
+                        id: 1,
+                        name: "Sarah Johnson",
+                        role: "Classmate",
+                        rating: "5",
+                        message: "Amazing work ethic and incredible attention to detail. Always delivers high-quality projects on time!",
+                        date: new Date().toLocaleDateString()
+                    },
+                    {
+                        id: 2,
+                        name: "Mike Chen",
+                        role: "Friend",
+                        rating: "5",
+                        message: "Creative problem solver with excellent communication skills. A pleasure to work with!",
+                        date: new Date().toLocaleDateString()
+                    },
+                    {
+                        id: 3,
+                        name: "Anonymous",
+                        role: "Colleague",
+                        rating: "4",
+                        message: "Highly skilled developer with a passion for innovation. Brings fresh ideas to every project.",
+                        date: new Date().toLocaleDateString()
+                    }
+                ];
+                localStorage.setItem('testimonials', JSON.stringify(testimonials));
+            }
+            
+            const grid = document.getElementById('testimonialsGrid');
+            grid.innerHTML = '';
+            
+            testimonials.forEach(testimonial => {
+                const testimonialDiv = document.createElement('div');
+                testimonialDiv.className = 'testimonial';
+                
+                const stars = '⭐'.repeat(parseInt(testimonial.rating));
+                
+                testimonialDiv.innerHTML = `
+                    <div class="testimonial-content">"${testimonial.message}"</div>
+                    <div class="testimonial-author">${testimonial.name}</div>
+                    <div class="testimonial-role">${testimonial.role} • ${stars}</div>
+                    <div class="testimonial-date">${testimonial.date}</div>
+                    <button class="delete-btn" onclick="deleteTestimonial(${testimonial.id})">×</button>
+                `;
+                
+                grid.appendChild(testimonialDiv);
+            });
+        }
+
+        function deleteTestimonial(id) {
+            if (confirm('Are you sure you want to delete this testimonial?')) {
+                let testimonials = JSON.parse(localStorage.getItem('testimonials') || '[]');
+                testimonials = testimonials.filter(t => t.id !== id);
+                localStorage.setItem('testimonials', JSON.stringify(testimonials));
+                loadTestimonials();
+            }
+        }
+
+        function toggleTestimonialModeration() {
+            isAdminMode = !isAdminMode;
+            document.body.classList.toggle('admin-mode', isAdminMode);
+            alert(isAdminMode ? 'Testimonial moderation enabled' : 'Testimonial moderation disabled');
+        }
+
+        // Contact form
+        function submitContact(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('contactName').value;
+            const email = document.getElementById('contactEmail').value;
+            const subject = document.getElementById('contactSubject').value;
+            const message = document.getElementById('contactMessage').value;
+            
+            // In a real application, you would send this to a server
+            alert(`Thank you ${name}! Your message has been received. I'll get back to you soon.`);
+            
+            // Reset form
+            event.target.reset();
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            
+            const themeButton = document.querySelector('.theme-toggle');
+            themeButton.innerHTML = isDarkMode ? '☀️' : '🌙';
+        }
+
+        // Load theme preference
+        function loadTheme() {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.theme-toggle').innerHTML = '☀️';
+            }
+        }
+
+        // Smooth scrolling
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const navHeight = 70;
+            const targetPosition = section.offsetTop - navHeight;
+            
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
+        }
+
+        function setupSmoothScrolling() {
+            // Update active nav link on scroll
+            window.addEventListener('scroll', () => {
+                const sections = ['home', 'about', 'gallery', 'testimonials', 'contact'];
+                const navHeight = 70;
+                
+                sections.forEach(sectionId => {
+                    const section = document.getElementById(sectionId);
+                    const rect = section.getBoundingClientRect();
+                    const link = document.querySelector(`nav a[href="#${sectionId}"]`);
+                    
+                    if (rect.top <= navHeight && rect.bottom >= navHeight) {
+                        document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+                        link.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // Scroll effects
+        function setupScrollEffects() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '50px'
+            });
+            
+            document.querySelectorAll('.section').forEach(section => {
+                observer.observe(section);
+            });
+        }
+
+        // Profile picture click
+        function changeProfilePic() {
+            if (adminAuthenticated) {
+                const newUrl = prompt('Enter new profile picture URL:');
+                if (newUrl) {
+                    document.getElementById('profilePic').src = newUrl;
+                    const profile = JSON.parse(localStorage.getItem('profile') || '{}');
+                    profile.profilePic = newUrl;
+                    localStorage.setItem('profile', JSON.stringify(profile));
+                }
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Close admin panel when clicking outside
+        document.addEventListener('click', function(e) {
+            const adminPanel = document.getElementById('adminPanel');
+            const adminToggle = document.querySelector('.admin-toggle');
+            
+            if (!adminPanel.contains(e.target) && !adminToggle.contains(e.target)) {
+                adminPanel.classList.remove('open');
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+                document.getElementById('adminPanel').classList.remove('open');
+            }
+        });
+
+        // Initialize theme and gallery on load
+        window.addEventListener('load', () => {
+            loadTheme();
+            loadGallery();
+        });
+
+        // Add some interactive elements
+        document.querySelectorAll('.skill-tag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                tag.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    tag.style.transform = '';
+                }, 150);
+            });
+        });
+    </script>
+</body>
+</html>
