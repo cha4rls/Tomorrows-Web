@@ -498,27 +498,31 @@
         }
 
         // Load social links (enhanced to load from Firebase)
-        async function loadSocialLinks() {
-            try {
-                if (adminAuthenticated) {
-                    const doc = await db.collection('admin').doc('socialLinks').get();
-                    if (doc.exists) {
-                        const socialLinks = doc.data();
-                        localStorage.setItem('socialLinks', JSON.stringify(socialLinks));
-                    }
-                }
-            } catch (error) {
-                console.log('Loading from localStorage fallback');
-            }
-            
+        function loadSocialLinks() {
             const socialLinks = JSON.parse(localStorage.getItem('socialLinks') || '{}');
             const socialLinksContainer = document.getElementById('socialLinks');
             
             const links = [
-                { key: 'linkedin', icon: '💼', title: 'LinkedIn' },
-                { key: 'facebook', icon: '📘', title: 'Facebook' },
-                { key: 'instagram', icon: '📸', title: 'Instagram' },
-                { key: 'spotify', icon: '🎵', title: 'Spotify' }
+                { 
+                    key: 'linkedin', 
+                    icon: 'https://cdn-icons-png.flaticon.com/512/174/174857.png', 
+                    title: 'LinkedIn' 
+                },
+                { 
+                    key: 'facebook', 
+                    icon: 'https://cdn-icons-png.flaticon.com/512/733/733547.png', 
+                    title: 'Facebook' 
+                },
+                { 
+                    key: 'instagram', 
+                    icon: 'https://cdn-icons-png.flaticon.com/512/174/174855.png', 
+                    title: 'Instagram' 
+                },
+                { 
+                    key: 'spotify', 
+                    icon: 'https://cdn-icons-png.flaticon.com/512/174/174872.png', 
+                    title: 'Spotify' 
+                }
             ];
             
             socialLinksContainer.innerHTML = '';
@@ -526,8 +530,12 @@
             links.forEach(link => {
                 const a = document.createElement('a');
                 a.className = 'social-link';
-                a.innerHTML = link.icon;
-                a.title = link.title;
+                a.setAttribute('data-tooltip', link.title);
+                
+                const img = document.createElement('img');
+                img.src = link.icon;
+                img.alt = link.title;
+                a.appendChild(img);
                 
                 if (socialLinks[link.key] && socialLinks[link.key].trim() !== '') {
                     a.href = socialLinks[link.key];
@@ -544,6 +552,9 @@
                 socialLinksContainer.appendChild(a);
             });
         }
+
+        // Demo initialization
+        loadSocialLinks();
 
         // Gallery functions (keeping localStorage for now)
         function addGalleryImage() {
