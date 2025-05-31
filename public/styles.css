@@ -578,8 +578,7 @@ body.dark-mode .social-link:hover {
     cursor: pointer;
 }
 
-/* Dark Mode Toggle - Removed from here since it's now in nav */
-
+/* Dark Mode */
 body.dark-mode {
     background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     color: #e0e0e0;
@@ -626,6 +625,15 @@ body.dark-mode .admin-panel {
 
 body.dark-mode .admin-section h3 {
     color: #e0e0e0;
+}
+
+/* Dark mode styles for demo container */
+body.dark-mode .demo-container {
+    background: #2d2d2d; /* Dark grey background */
+}
+
+body.dark-mode .demo-container h2 {
+    color: #ffffff; /* White text */
 }
 
 /* Animations */
