@@ -116,8 +116,8 @@
     <section id="home" class="hero">
         <div class="hero-content">
             <img src="https://i.imgur.com/qsDslHa.png" alt="Profile Picture" class="profile-pic" id="profilePic" onclick="changeProfilePic()">
-            <h1 id="heroName">Your Name</h1>
-            <p id="heroBio">Web Developer & Creative Professional</p>
+            <h1 id="heroName">Charls Sy Reyes</h1>
+            <p id="heroBio">Creative Computing Student</p>
         </div>
     </section>
 
@@ -427,8 +427,8 @@
             }
             
             const profile = {
-                name: document.getElementById('adminName').value || 'Your Name',
-                bio: document.getElementById('adminBio').value || 'Web Developer & Creative Professional',
+                name: document.getElementById('adminName').value || 'Charls Sy Reyes',
+                bio: document.getElementById('adminBio').value || 'Creative Computing Student',
                 profilePic: document.getElementById('adminProfilePic').value || '',
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
@@ -461,8 +461,8 @@
             const profile = JSON.parse(localStorage.getItem('profile') || '{}');
             
             // Update hero section only
-            document.getElementById('heroName').textContent = profile.name || 'Your Name';
-            document.getElementById('heroBio').textContent = profile.bio || 'Web Developer & Creative Professional';
+            document.getElementById('heroName').textContent = profile.name || 'Charls Sy Reyes';
+            document.getElementById('heroBio').textContent = profile.bio || 'Creative Computing Student';
             document.getElementById('profilePic').src = profile.profilePic || '';
         }
     
@@ -1037,8 +1037,8 @@
             const heroBio = document.getElementById('heroBio');
             const profilePic = document.getElementById('profilePic');
             
-            if (heroName) heroName.textContent = profile.name || 'Your Name';
-            if (heroBio) heroBio.textContent = profile.bio || 'Web Developer & Creative Professional';
+            if (heroName) heroName.textContent = profile.name || 'Charls Sy Reyes';
+            if (heroBio) heroBio.textContent = profile.bio || 'Creative Computing Student';
             if (profilePic && profile.profilePic) {
                 profilePic.src = profile.profilePic;
             }
@@ -1052,8 +1052,8 @@
             }
             
             const profile = {
-                name: document.getElementById('adminName').value || 'Your Name',
-                bio: document.getElementById('adminBio').value || 'Web Developer & Creative Professional',
+                name: document.getElementById('adminName').value || 'Charls Sy Reyes',
+                bio: document.getElementById('adminBio').value || 'Creative Computing Student',
                 profilePic: document.getElementById('adminProfilePic').value || '',
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
