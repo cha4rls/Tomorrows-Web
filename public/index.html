@@ -971,16 +971,107 @@
         }
 
         // Profile picture click
-        function changeProfilePic() {
-            if (adminAuthenticated) {
-                const newUrl = prompt('Enter new profile picture URL:');
-                if (newUrl) {
+        async function changeProfilePic() {
+            if (!adminAuthenticated) {
+                alert('Please login as admin first');
+                return;
+            }
+            
+            const newUrl = prompt('Enter new profile picture URL:');
+            if (newUrl && newUrl.trim() !== '') {
+                try {
+                    // Update Firebase first
+                    const profileData = {
+                        profilePic: newUrl,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    
+                    await db.collection('admin').doc('profile').update(profileData);
+                    
+                    // Update the image on the page immediately
                     document.getElementById('profilePic').src = newUrl;
+                    
+                    // Update localStorage for faster local loading
                     const profile = JSON.parse(localStorage.getItem('profile') || '{}');
                     profile.profilePic = newUrl;
                     localStorage.setItem('profile', JSON.stringify(profile));
-                    updateProfile(); // Save to Firebase too
+                    
+                    // Also update the admin panel field if it exists
+                    const adminProfilePicField = document.getElementById('adminProfilePic');
+                    if (adminProfilePicField) {
+                        adminProfilePicField.value = newUrl;
+                    }
+                    
+                    alert('Profile picture updated successfully! It will now be visible to all visitors.');
+                    
+                } catch (error) {
+                    console.error('Error updating profile picture:', error);
+                    alert('Error updating profile picture: ' + error.message);
+                    
+                    // Revert the image if Firebase update failed
+                    loadProfile();
                 }
+            }
+        }
+
+        // Also update your loadProfile function to properly load from Firebase:
+        async function loadProfile() {
+            try {
+                // Try to load from Firebase first if authenticated
+                if (adminAuthenticated || firebaseUser) {
+                    const doc = await db.collection('admin').doc('profile').get();
+                    if (doc.exists) {
+                        const profile = doc.data();
+                        localStorage.setItem('profile', JSON.stringify(profile));
+                    }
+                }
+            } catch (error) {
+                console.log('Loading from localStorage fallback:', error.message);
+            }
+            
+            // Load from localStorage (either from Firebase or existing data)
+            const profile = JSON.parse(localStorage.getItem('profile') || '{}');
+            
+            // Update hero section
+            const heroName = document.getElementById('heroName');
+            const heroBio = document.getElementById('heroBio');
+            const profilePic = document.getElementById('profilePic');
+            
+            if (heroName) heroName.textContent = profile.name || 'Your Name';
+            if (heroBio) heroBio.textContent = profile.bio || 'Web Developer & Creative Professional';
+            if (profilePic && profile.profilePic) {
+                profilePic.src = profile.profilePic;
+            }
+        }
+
+        // Enhanced updateProfile function to ensure consistency:
+        async function updateProfile() {
+            if (!adminAuthenticated) {
+                alert('Please login as admin first');
+                return;
+            }
+            
+            const profile = {
+                name: document.getElementById('adminName').value || 'Your Name',
+                bio: document.getElementById('adminBio').value || 'Web Developer & Creative Professional',
+                profilePic: document.getElementById('adminProfilePic').value || '',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            try {
+                // Save to Firebase
+                await db.collection('admin').doc('profile').set(profile);
+                
+                // Update localStorage
+                localStorage.setItem('profile', JSON.stringify(profile));
+                
+                // Reload profile to update the page
+                loadProfile();
+                
+                alert('Profile updated successfully!');
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('Error updating profile: ' + error.message);
             }
         }
 
