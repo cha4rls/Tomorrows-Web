@@ -115,7 +115,7 @@
     <!-- Hero Section -->
     <section id="home" class="hero">
         <div class="hero-content">
-            <img src="https://via.placeholder.com/200x200/333/fff?text=Photo" alt="Profile Picture" class="profile-pic" id="profilePic" onclick="changeProfilePic()">
+            <img src="" alt="Profile Picture" class="profile-pic" id="profilePic" onclick="changeProfilePic()">
             <h1 id="heroName">Your Name</h1>
             <p id="heroBio">Web Developer & Creative Professional</p>
         </div>
@@ -148,8 +148,8 @@
                         <span class="skill-tag">HTML5</span>
                         <span class="skill-tag">CSS3</span>
                         <span class="skill-tag">JavaScript</span>
-                        <span class="skill-tag">React</span>
-                        <span class="skill-tag">Node.js</span>
+                        <span class="skill-tag">Firebase</span>
+                        <span class="skill-tag">Android Studio</span>
                         <span class="skill-tag">Python</span>
                         <span class="skill-tag">Git</span>
                         <span class="skill-tag">Responsive Design</span>
@@ -194,6 +194,12 @@
                 </div>
                 <div class="gallery-item" onclick="openModal(this)">
                     <img src="https://i.imgur.com/hI8VgnO.jpeg" alt="Project 4">
+                </div>
+                <div class="gallery-item" onclick="openModal(this)">
+                    <img src="https://i.imgur.com/JO8PjiK.jpeg" alt="Project 5">
+                </div>
+                <div class="gallery-item" onclick="openModal(this)">
+                    <img src="https://i.imgur.com/cH0hd4F.jpeg" alt="Project 6">
                 </div>
             </div>
         </div>
@@ -423,7 +429,7 @@
             const profile = {
                 name: document.getElementById('adminName').value || 'Your Name',
                 bio: document.getElementById('adminBio').value || 'Web Developer & Creative Professional',
-                profilePic: document.getElementById('adminProfilePic').value || 'https://via.placeholder.com/200x200/333/fff?text=Photo',
+                profilePic: document.getElementById('adminProfilePic').value || '',
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             
@@ -457,7 +463,7 @@
             // Update hero section only
             document.getElementById('heroName').textContent = profile.name || 'Your Name';
             document.getElementById('heroBio').textContent = profile.bio || 'Web Developer & Creative Professional';
-            document.getElementById('profilePic').src = profile.profilePic || 'https://via.placeholder.com/200x200/333/fff?text=Photo';
+            document.getElementById('profilePic').src = profile.profilePic || '';
         }
     
 
