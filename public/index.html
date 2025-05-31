@@ -116,8 +116,8 @@
     <section id="home" class="hero">
         <div class="hero-content">
             <img src="https://i.imgur.com/qsDslHa.png" alt="Profile Picture" class="profile-pic" id="profilePic" onclick="changeProfilePic()">
-            <h1 id="heroName">Charls Sy Reyes</h1>
-            <p id="heroBio">Creative Computing Student</p>
+            <h1 id="heroName">Your Name</h1>
+            <p id="heroBio">Web Developer & Creative Professional</p>
         </div>
     </section>
 
@@ -161,18 +161,7 @@
             <div class="demo-container">
                 <h2>Connect with me!</h2>
                 <div class="social-links" id="socialLinks">
-                    <a href="https://www.linkedin.com/in/reyes-charls/" class="social-link" target="_blank" data-tooltip="LinkedIn">
-                        <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" alt="LinkedIn">
-                    </a>
-                    <a href="https://www.facebook.com/quoisv/" class="social-link" target="_blank" data-tooltip="Facebook">
-                        <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook">
-                    </a>
-                    <a href="https://www.instagram.com/quoisv/" class="social-link" target="_blank" data-tooltip="Instagram">
-                        <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram">
-                    </a>
-                    <a href="https://open.spotify.com/user/zsjyvy9ok333j06gueov5e25v" class="social-link" target="_blank" data-tooltip="Spotify">
-                        <img src="https://cdn-icons-png.flaticon.com/512/174/174872.png" alt="Spotify">
-                    </a>
+                    <!-- Social links will be loaded from Firestore -->
                 </div>
             </div>
         </div>
@@ -183,24 +172,7 @@
         <div class="container">
             <h2>My Work</h2>
             <div class="gallery-grid" id="gallery">
-                <div class="gallery-item" onclick="openModal(this)">
-                    <img src="https://i.imgur.com/KlM35F0.jpeg" alt="Project 1">
-                </div>
-                <div class="gallery-item" onclick="openModal(this)">
-                    <img src="https://i.imgur.com/GnYduMU.jpeg" alt="Project 2">
-                </div>
-                <div class="gallery-item" onclick="openModal(this)">
-                    <img src="https://i.imgur.com/veyhBAu.jpeg" alt="Project 3">
-                </div>
-                <div class="gallery-item" onclick="openModal(this)">
-                    <img src="https://i.imgur.com/hI8VgnO.jpeg" alt="Project 4">
-                </div>
-                <div class="gallery-item" onclick="openModal(this)">
-                    <img src="https://i.imgur.com/JO8PjiK.jpeg" alt="Project 5">
-                </div>
-                <div class="gallery-item" onclick="openModal(this)">
-                    <img src="https://i.imgur.com/cH0hd4F.jpeg" alt="Project 6">
-                </div>
+                <!-- Gallery will be loaded from Firestore -->
             </div>
         </div>
     </section>
@@ -295,16 +267,16 @@
     </div>
 
     <script>
-        // Firebase Configuration - REPLACE WITH YOUR ACTUAL CONFIG
-            const firebaseConfig = {
-    apiKey: "AIzaSyCR0E6LE9DIwHPV5LQP-MhCn8LLCTIgSGA",
-    authDomain: "my-awesome-portfolio-6eca1.firebaseapp.com",
-    projectId: "my-awesome-portfolio-6eca1",
-    storageBucket: "my-awesome-portfolio-6eca1.firebasestorage.app",
-    messagingSenderId: "404489279066",
-    appId: "1:404489279066:web:f8f244f491334fb9efea63",
-    measurementId: "G-KELCE11P82"
-    };
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCR0E6LE9DIwHPV5LQP-MhCn8LLCTIgSGA",
+            authDomain: "my-awesome-portfolio-6eca1.firebaseapp.com",
+            projectId: "my-awesome-portfolio-6eca1",
+            storageBucket: "my-awesome-portfolio-6eca1.firebasestorage.app",
+            messagingSenderId: "404489279066",
+            appId: "1:404489279066:web:f8f244f491334fb9efea63",
+            measurementId: "G-KELCE11P82"
+        };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -320,15 +292,201 @@
         let adminAuthenticated = false;
         let firebaseUser = null;
         
+        // Real-time listeners
+        let profileListener = null;
+        let socialLinksListener = null;
+        let galleryListener = null;
+        let themeListener = null;
+        
         // Initialize the website
         document.addEventListener('DOMContentLoaded', function() {
-            loadProfile();
-            loadTestimonialsFromFirebase();
-            loadSocialLinks();
+            setupFirebaseAuth();
+            setupRealtimeListeners();
             setupScrollEffects();
             setupSmoothScrolling();
-            setupFirebaseAuth();
+            loadThemeFromFirestore();
+            loadTestimonialsFromFirebase();
         });
+
+        // Setup real-time listeners for public data
+        function setupRealtimeListeners() {
+            // Profile listener (public data)
+            profileListener = db.collection('public').doc('profile').onSnapshot((doc) => {
+                if (doc.exists) {
+                    updateProfileUI(doc.data());
+                } else {
+                    // Load default profile if no data exists
+                    updateProfileUI({
+                        name: 'Your Name',
+                        bio: 'Web Developer & Creative Professional',
+                        profilePic: 'https://i.imgur.com/qsDslHa.png'
+                    });
+                }
+            }, (error) => {
+                console.log('Profile listener error:', error);
+                // Load defaults on error
+                updateProfileUI({
+                    name: 'Your Name',
+                    bio: 'Web Developer & Creative Professional',
+                    profilePic: 'https://i.imgur.com/qsDslHa.png'
+                });
+            });
+
+            // Social links listener (public data)
+            socialLinksListener = db.collection('public').doc('socialLinks').onSnapshot((doc) => {
+                if (doc.exists) {
+                    updateSocialLinksUI(doc.data());
+                } else {
+                    // Load default social links
+                    updateSocialLinksUI({
+                        linkedin: 'https://www.linkedin.com/in/reyes-charls/',
+                        facebook: 'https://www.facebook.com/quoisv/',
+                        instagram: 'https://www.instagram.com/quoisv/',
+                        spotify: 'https://open.spotify.com/user/zsjyvy9ok333j06gueov5e25v'
+                    });
+                }
+            }, (error) => {
+                console.log('Social links listener error:', error);
+                // Load defaults on error
+                updateSocialLinksUI({
+                    linkedin: 'https://www.linkedin.com/in/reyes-charls/',
+                    facebook: 'https://www.facebook.com/quoisv/',
+                    instagram: 'https://www.instagram.com/quoisv/',
+                    spotify: 'https://open.spotify.com/user/zsjyvy9ok333j06gueov5e25v'
+                });
+            });
+
+            // Gallery listener (public data)
+            galleryListener = db.collection('public').doc('gallery').onSnapshot((doc) => {
+                if (doc.exists && doc.data().images) {
+                    updateGalleryUI(doc.data().images);
+                } else {
+                    // Load default gallery
+                    loadDefaultGallery();
+                }
+            }, (error) => {
+                console.log('Gallery listener error:', error);
+                loadDefaultGallery();
+            });
+
+            // Theme listener (public data)
+            themeListener = db.collection('public').doc('theme').onSnapshot((doc) => {
+                if (doc.exists && doc.data().darkMode !== undefined) {
+                    updateThemeUI(doc.data().darkMode);
+                }
+            }, (error) => {
+                console.log('Theme listener error:', error);
+            });
+        }
+
+        // UI Update Functions
+        function updateProfileUI(profile) {
+            const heroName = document.getElementById('heroName');
+            const heroBio = document.getElementById('heroBio');
+            const profilePic = document.getElementById('profilePic');
+            
+            if (heroName) heroName.textContent = profile.name || 'Your Name';
+            if (heroBio) heroBio.textContent = profile.bio || 'Web Developer & Creative Professional';
+            if (profilePic && profile.profilePic) {
+                profilePic.src = profile.profilePic;
+            }
+        }
+
+        function updateSocialLinksUI(socialLinks) {
+            const socialLinksContainer = document.getElementById('socialLinks');
+            if (!socialLinksContainer) return;
+            
+            const links = [
+                { 
+                    key: 'linkedin', 
+                    icon: 'https://cdn-icons-png.flaticon.com/512/174/174857.png', 
+                    title: 'LinkedIn' 
+                },
+                { 
+                    key: 'facebook', 
+                    icon: 'https://cdn-icons-png.flaticon.com/512/733/733547.png', 
+                    title: 'Facebook' 
+                },
+                { 
+                    key: 'instagram', 
+                    icon: 'https://cdn-icons-png.flaticon.com/512/174/174855.png', 
+                    title: 'Instagram' 
+                },
+                { 
+                    key: 'spotify', 
+                    icon: 'https://cdn-icons-png.flaticon.com/512/174/174872.png', 
+                    title: 'Spotify' 
+                }
+            ];
+            
+            socialLinksContainer.innerHTML = '';
+            
+            links.forEach(link => {
+                const a = document.createElement('a');
+                a.className = 'social-link';
+                a.setAttribute('data-tooltip', link.title);
+                
+                const img = document.createElement('img');
+                img.src = link.icon;
+                img.alt = link.title;
+                a.appendChild(img);
+                
+                if (socialLinks[link.key] && socialLinks[link.key].trim() !== '') {
+                    a.href = socialLinks[link.key];
+                    a.target = '_blank';
+                    a.onclick = null;
+                } else {
+                    a.href = '#';
+                    a.onclick = (e) => {
+                        e.preventDefault();
+                        alert(`${link.title} link not set. Please configure in admin panel.`);
+                    };
+                }
+                
+                socialLinksContainer.appendChild(a);
+            });
+        }
+
+        function updateGalleryUI(images) {
+            const gallery = document.getElementById('gallery');
+            if (!gallery) return;
+            
+            gallery.innerHTML = '';
+            
+            images.forEach((item, index) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                galleryItem.onclick = () => openModal(galleryItem);
+                
+                const img = document.createElement('img');
+                img.src = item.src;
+                img.alt = item.alt || `Gallery Image ${index + 1}`;
+                galleryItem.appendChild(img);
+                
+                if (isGalleryEditMode && adminAuthenticated) {
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.innerHTML = '×';
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        deleteGalleryImage(index);
+                    };
+                    galleryItem.appendChild(deleteBtn);
+                }
+                
+                gallery.appendChild(galleryItem);
+            });
+        }
+
+        function updateThemeUI(isDarkMode) {
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.theme-toggle').innerHTML = '☀️';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.querySelector('.theme-toggle').innerHTML = '🌙';
+            }
+        }
 
         // Firebase Authentication Setup
         function setupFirebaseAuth() {
@@ -391,10 +549,9 @@
             }
         }
 
-        // Admin authentication (enhanced with Firebase)
+        // Admin Functions
         function toggleAdmin() {
             if (!adminAuthenticated) {
-                // Show Firebase login instead of simple password
                 document.getElementById('firebaseAuth').style.display = 'block';
                 document.getElementById('adminPanel').classList.add('open');
             } else {
@@ -405,21 +562,32 @@
             }
         }
 
-        // Load admin data into forms
-        function loadAdminData() {
-            const profile = JSON.parse(localStorage.getItem('profile') || '{}');
-            const socialLinks = JSON.parse(localStorage.getItem('socialLinks') || '{}');
-            
-            document.getElementById('adminName').value = profile.name || '';
-            document.getElementById('adminBio').value = profile.bio || '';
-            document.getElementById('adminProfilePic').value = profile.profilePic || '';
-            document.getElementById('adminLinkedIn').value = socialLinks.linkedin || '';
-            document.getElementById('adminFacebook').value = socialLinks.facebook || '';
-            document.getElementById('adminInstagram').value = socialLinks.instagram || '';
-            document.getElementById('adminSpotify').value = socialLinks.spotify || '';
+        async function loadAdminData() {
+            try {
+                // Load profile data for admin forms
+                const profileDoc = await db.collection('public').doc('profile').get();
+                if (profileDoc.exists) {
+                    const profile = profileDoc.data();
+                    document.getElementById('adminName').value = profile.name || '';
+                    document.getElementById('adminBio').value = profile.bio || '';
+                    document.getElementById('adminProfilePic').value = profile.profilePic || '';
+                }
+
+                // Load social links data for admin forms
+                const socialDoc = await db.collection('public').doc('socialLinks').get();
+                if (socialDoc.exists) {
+                    const socialLinks = socialDoc.data();
+                    document.getElementById('adminLinkedIn').value = socialLinks.linkedin || '';
+                    document.getElementById('adminFacebook').value = socialLinks.facebook || '';
+                    document.getElementById('adminInstagram').value = socialLinks.instagram || '';
+                    document.getElementById('adminSpotify').value = socialLinks.spotify || '';
+                }
+            } catch (error) {
+                console.error('Error loading admin data:', error);
+            }
         }
 
-        // Update profile (enhanced to save to Firebase)
+        // Profile Management
         async function updateProfile() {
             if (!adminAuthenticated) {
                 alert('Please login as admin first');
@@ -427,16 +595,14 @@
             }
             
             const profile = {
-                name: document.getElementById('adminName').value || 'Charls Sy Reyes',
-                bio: document.getElementById('adminBio').value || 'Creative Computing Student',
-                profilePic: document.getElementById('adminProfilePic').value || '',
+                name: document.getElementById('adminName').value || 'Your Name',
+                bio: document.getElementById('adminBio').value || 'Web Developer & Creative Professional',
+                profilePic: document.getElementById('adminProfilePic').value || 'https://i.imgur.com/qsDslHa.png',
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             
             try {
-                await db.collection('admin').doc('profile').set(profile);
-                localStorage.setItem('profile', JSON.stringify(profile));
-                loadProfile();
+                await db.collection('public').doc('profile').set(profile);
                 alert('Profile updated successfully!');
             } catch (error) {
                 console.error('Error updating profile:', error);
@@ -444,30 +610,34 @@
             }
         }
 
-        // Load profile data (enhanced to load from Firebase) - FIXED VERSION
-        async function loadProfile() {
-            try {
-                if (adminAuthenticated) {
-                    const doc = await db.collection('admin').doc('profile').get();
-                    if (doc.exists) {
-                        const profile = doc.data();
-                        localStorage.setItem('profile', JSON.stringify(profile));
-                    }
-                }
-            } catch (error) {
-                console.log('Loading from localStorage fallback');
+        async function changeProfilePic() {
+            if (!adminAuthenticated) {
+                alert('Please login as admin first');
+                return;
             }
             
-            const profile = JSON.parse(localStorage.getItem('profile') || '{}');
-            
-            // Update hero section only
-            document.getElementById('heroName').textContent = profile.name || 'Charls Sy Reyes';
-            document.getElementById('heroBio').textContent = profile.bio || 'Creative Computing Student';
-            document.getElementById('profilePic').src = profile.profilePic || '';
+            const newUrl = prompt('Enter new profile picture URL:');
+            if (newUrl && newUrl.trim() !== '') {
+                try {
+                    await db.collection('public').doc('profile').update({
+                        profilePic: newUrl,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    const adminProfilePicField = document.getElementById('adminProfilePic');
+                    if (adminProfilePicField) {
+                        adminProfilePicField.value = newUrl;
+                    }
+                    
+                    alert('Profile picture updated successfully!');
+                } catch (error) {
+                    console.error('Error updating profile picture:', error);
+                    alert('Error updating profile picture: ' + error.message);
+                }
+            }
         }
-    
 
-        // Update social links (enhanced to save to Firebase)
+        // Social Links Management
         async function updateSocialLinks() {
             if (!adminAuthenticated) {
                 alert('Please login as admin first');
@@ -475,17 +645,15 @@
             }
             
             const socialLinks = {
-                linkedin: document.getElementById('adminLinkedIn').value,
-                facebook: document.getElementById('adminFacebook').value,
-                instagram: document.getElementById('adminInstagram').value,
-                spotify: document.getElementById('adminSpotify').value,
+                linkedin: document.getElementById('adminLinkedIn').value || '',
+                facebook: document.getElementById('adminFacebook').value || '',
+                instagram: document.getElementById('adminInstagram').value || '',
+                spotify: document.getElementById('adminSpotify').value || '',
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             
             try {
-                await db.collection('admin').doc('socialLinks').set(socialLinks);
-                localStorage.setItem('socialLinks', JSON.stringify(socialLinks));
-                loadSocialLinks();
+                await db.collection('public').doc('socialLinks').set(socialLinks);
                 alert('Social links updated successfully!');
             } catch (error) {
                 console.error('Error updating social links:', error);
@@ -493,67 +661,13 @@
             }
         }
 
-        // Load social links (enhanced to load from Firebase)
-        function loadSocialLinks() {
-            const socialLinks = JSON.parse(localStorage.getItem('socialLinks') || '{}');
-            const socialLinksContainer = document.getElementById('socialLinks');
-            
-            const links = [
-                { 
-                    key: 'linkedin', 
-                    icon: 'https://cdn-icons-png.flaticon.com/512/174/174857.png', 
-                    title: 'LinkedIn' 
-                },
-                { 
-                    key: 'facebook', 
-                    icon: 'https://cdn-icons-png.flaticon.com/512/733/733547.png', 
-                    title: 'Facebook' 
-                },
-                { 
-                    key: 'instagram', 
-                    icon: 'https://cdn-icons-png.flaticon.com/512/174/174855.png', 
-                    title: 'Instagram' 
-                },
-                { 
-                    key: 'spotify', 
-                    icon: 'https://cdn-icons-png.flaticon.com/512/174/174872.png', 
-                    title: 'Spotify' 
-                }
-            ];
-            
-            socialLinksContainer.innerHTML = '';
-            
-            links.forEach(link => {
-                const a = document.createElement('a');
-                a.className = 'social-link';
-                a.setAttribute('data-tooltip', link.title);
-                
-                const img = document.createElement('img');
-                img.src = link.icon;
-                img.alt = link.title;
-                a.appendChild(img);
-                
-                if (socialLinks[link.key] && socialLinks[link.key].trim() !== '') {
-                    a.href = socialLinks[link.key];
-                    a.target = '_blank';
-                    a.onclick = null;
-                } else {
-                    a.href = '#';
-                    a.onclick = (e) => {
-                        e.preventDefault();
-                        alert(`${link.title} link not set. Please configure in admin panel.`);
-                    };
-                }
-                
-                socialLinksContainer.appendChild(a);
-            });
-        }
+        // Gallery Management
+        async function addGalleryImage() {
+            if (!adminAuthenticated) {
+                alert('Please login as admin first');
+                return;
+            }
 
-        // Demo initialization
-        loadSocialLinks();
-
-        // Gallery functions (keeping localStorage for now)
-        function addGalleryImage() {
             const imageUrl = document.getElementById('newGalleryImage').value;
             const imageTitle = document.getElementById('newGalleryTitle').value;
             
@@ -562,91 +676,115 @@
                 return;
             }
             
-            const gallery = document.getElementById('gallery');
-            const galleryItem = document.createElement('div');
-            galleryItem.className = 'gallery-item';
-            galleryItem.onclick = () => openModal(galleryItem);
-            
-            const img = document.createElement('img');
-            img.src = imageUrl;
-            img.alt = imageTitle || 'Gallery Image';
-            galleryItem.appendChild(img);
-            
-            if (isGalleryEditMode) {
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-btn';
-                deleteBtn.innerHTML = '×';
-                deleteBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    galleryItem.remove();
-                    saveGallery();
-                };
-                galleryItem.appendChild(deleteBtn);
+            try {
+                // Get current gallery
+                const doc = await db.collection('public').doc('gallery').get();
+                let images = [];
+                if (doc.exists && doc.data().images) {
+                    images = doc.data().images;
+                }
+                
+                // Add new image
+                images.push({
+                    src: imageUrl,
+                    alt: imageTitle || 'Gallery Image',
+                    addedAt: new Date().toISOString()
+                });
+                
+                // Save to Firestore
+                await db.collection('public').doc('gallery').set({
+                    images: images,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                document.getElementById('newGalleryImage').value = '';
+                document.getElementById('newGalleryTitle').value = '';
+                alert('Image added successfully!');
+            } catch (error) {
+                console.error('Error adding gallery image:', error);
+                alert('Error adding image: ' + error.message);
             }
+        }
+
+        async function deleteGalleryImage(index) {
+            if (!adminAuthenticated) return;
             
-            gallery.appendChild(galleryItem);
-            saveGallery();
-            
-            document.getElementById('newGalleryImage').value = '';
-            document.getElementById('newGalleryTitle').value = '';
-            alert('Image added successfully!');
+            if (confirm('Are you sure you want to delete this image?')) {
+                try {
+                    const doc = await db.collection('public').doc('gallery').get();
+                    if (doc.exists && doc.data().images) {
+                        let images = doc.data().images;
+                        images.splice(index, 1);
+                        
+                        await db.collection('public').doc('gallery').set({
+                            images: images,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
+                        alert('Image deleted successfully!');
+                    }
+                } catch (error) {
+                    console.error('Error deleting gallery image:', error);
+                    alert('Error deleting image: ' + error.message);
+                }
+            }
         }
 
         function toggleGalleryEdit() {
-            isGalleryEditMode = !isGalleryEditMode;
-            const gallery = document.getElementById('gallery');
-            const items = gallery.querySelectorAll('.gallery-item');
+            if (!adminAuthenticated) {
+                alert('Please login as admin first');
+                return;
+            }
             
-            items.forEach(item => {
-                let deleteBtn = item.querySelector('.delete-btn');
-                if (isGalleryEditMode && !deleteBtn) {
-                    deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'delete-btn';
-                    deleteBtn.innerHTML = '×';
-                    deleteBtn.style.display = 'block';
-                    deleteBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        item.remove();
-                        saveGallery();
-                    };
-                    item.appendChild(deleteBtn);
-                } else if (!isGalleryEditMode && deleteBtn) {
-                    deleteBtn.style.display = 'none';
+            isGalleryEditMode = !isGalleryEditMode;
+            
+            // Re-render gallery with/without delete buttons
+            const galleryDoc = db.collection('public').doc('gallery').get().then(doc => {
+                if (doc.exists && doc.data().images) {
+                    updateGalleryUI(doc.data().images);
                 }
             });
             
             alert(isGalleryEditMode ? 'Gallery edit mode enabled' : 'Gallery edit mode disabled');
         }
 
-        function saveGallery() {
-            const gallery = document.getElementById('gallery');
-            const items = gallery.querySelectorAll('.gallery-item img');
-            const galleryData = Array.from(items).map(img => ({
-                src: img.src,
-                alt: img.alt
-            }));
-            localStorage.setItem('galleryData', JSON.stringify(galleryData));
+        function loadDefaultGallery() {
+            const defaultImages = [
+                { src: 'https://i.imgur.com/KlM35F0.jpeg', alt: 'Project 1' },
+                { src: 'https://i.imgur.com/GnYduMU.jpeg', alt: 'Project 2' },
+                { src: 'https://i.imgur.com/veyhBAu.jpeg', alt: 'Project 3' },
+                { src: 'https://i.imgur.com/hI8VgnO.jpeg', alt: 'Project 4' },
+                { src: 'https://i.imgur.com/JO8PjiK.jpeg', alt: 'Project 5' },
+                { src: 'https://i.imgur.com/cH0hd4F.jpeg', alt: 'Project 6' }
+            ];
+            updateGalleryUI(defaultImages);
         }
 
-        function loadGallery() {
-            const galleryData = JSON.parse(localStorage.getItem('galleryData') || '[]');
-            if (galleryData.length === 0) return;
+        // Theme Management
+        async function toggleTheme() {
+            const isDarkMode = !document.body.classList.contains('dark-mode');
             
-            const gallery = document.getElementById('gallery');
-            gallery.innerHTML = '';
-            
-            galleryData.forEach(item => {
-                const galleryItem = document.createElement('div');
-                galleryItem.className = 'gallery-item';
-                galleryItem.onclick = () => openModal(galleryItem);
-                
-                const img = document.createElement('img');
-                img.src = item.src;
-                img.alt = item.alt;
-                galleryItem.appendChild(img);
-                
-                gallery.appendChild(galleryItem);
-            });
+            try {
+                await db.collection('public').doc('theme').set({
+                    darkMode: isDarkMode,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.error('Error saving theme:', error);
+                // Apply theme locally even if save fails
+                updateThemeUI(isDarkMode);
+            }
+        }
+
+        async function loadThemeFromFirestore() {
+            try {
+                const doc = await db.collection('public').doc('theme').get();
+                if (doc.exists && doc.data().darkMode !== undefined) {
+                    updateThemeUI(doc.data().darkMode);
+                }
+            } catch (error) {
+                console.log('Error loading theme, using default');
+            }
         }
 
         // Modal functionality
@@ -664,7 +802,7 @@
             document.getElementById('imageModal').classList.remove('active');
         }
 
-        // Testimonials with Firebase
+        // Testimonials with Firebase (unchanged)
         async function submitTestimonial(event) {
             event.preventDefault();
             
@@ -679,7 +817,7 @@
                 role: role,
                 rating: rating,
                 message: message,
-                approved: false, // Requires admin approval
+                approved: false,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 date: new Date().toLocaleDateString()
             };
@@ -699,7 +837,6 @@
 
         async function loadTestimonialsFromFirebase() {
             try {
-                // Load approved testimonials for public display
                 const snapshot = await db.collection('testimonials')
                     .where('approved', '==', true)
                     .orderBy('timestamp', 'desc')
@@ -709,7 +846,6 @@
                 grid.innerHTML = '';
                 
                 if (snapshot.empty) {
-                    // Show default testimonials if no Firebase testimonials exist
                     loadDefaultTestimonials();
                     return;
                 }
@@ -789,7 +925,7 @@
                     approvedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 loadPendingTestimonials();
-                loadTestimonialsFromFirebase(); // Refresh approved testimonials
+                loadTestimonialsFromFirebase();
                 alert('Testimonial approved!');
             } catch (error) {
                 alert('Error approving testimonial: ' + error.message);
@@ -870,7 +1006,7 @@
             });
         }
 
-        // Contact form with Firebase
+        // Contact form with Firebase (unchanged)
         async function submitContact(event) {
             event.preventDefault();
             
@@ -902,26 +1038,7 @@
             }
         }
 
-        // Theme toggle
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            localStorage.setItem('darkMode', isDarkMode);
-            
-            const themeButton = document.querySelector('.theme-toggle');
-            themeButton.innerHTML = isDarkMode ? '☀️' : '🌙';
-        }
-
-        // Load theme preference
-        function loadTheme() {
-            const isDarkMode = localStorage.getItem('darkMode') === 'true';
-            if (isDarkMode) {
-                document.body.classList.add('dark-mode');
-                document.querySelector('.theme-toggle').innerHTML = '☀️';
-            }
-        }
-
-        // Smooth scrolling
+        // Navigation and UI functions
         function scrollToSection(sectionId) {
             const section = document.getElementById(sectionId);
             const navHeight = 70;
@@ -934,7 +1051,6 @@
         }
 
         function setupSmoothScrolling() {
-            // Update active nav link on scroll
             window.addEventListener('scroll', () => {
                 const sections = ['home', 'about', 'gallery', 'testimonials', 'contact'];
                 const navHeight = 70;
@@ -952,7 +1068,6 @@
             });
         }
 
-        // Scroll effects
         function setupScrollEffects() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -970,119 +1085,13 @@
             });
         }
 
-        // Profile picture click
-        async function changeProfilePic() {
-            if (!adminAuthenticated) {
-                alert('Please login as admin first');
-                return;
-            }
-            
-            const newUrl = prompt('Enter new profile picture URL:');
-            if (newUrl && newUrl.trim() !== '') {
-                try {
-                    // Update Firebase first
-                    const profileData = {
-                        profilePic: newUrl,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    };
-                    
-                    await db.collection('admin').doc('profile').update(profileData);
-                    
-                    // Update the image on the page immediately
-                    document.getElementById('profilePic').src = newUrl;
-                    
-                    // Update localStorage for faster local loading
-                    const profile = JSON.parse(localStorage.getItem('profile') || '{}');
-                    profile.profilePic = newUrl;
-                    localStorage.setItem('profile', JSON.stringify(profile));
-                    
-                    // Also update the admin panel field if it exists
-                    const adminProfilePicField = document.getElementById('adminProfilePic');
-                    if (adminProfilePicField) {
-                        adminProfilePicField.value = newUrl;
-                    }
-                    
-                    alert('Profile picture updated successfully! It will now be visible to all visitors.');
-                    
-                } catch (error) {
-                    console.error('Error updating profile picture:', error);
-                    alert('Error updating profile picture: ' + error.message);
-                    
-                    // Revert the image if Firebase update failed
-                    loadProfile();
-                }
-            }
-        }
-
-        // Also update your loadProfile function to properly load from Firebase:
-        async function loadProfile() {
-            try {
-                // Try to load from Firebase first if authenticated
-                if (adminAuthenticated || firebaseUser) {
-                    const doc = await db.collection('admin').doc('profile').get();
-                    if (doc.exists) {
-                        const profile = doc.data();
-                        localStorage.setItem('profile', JSON.stringify(profile));
-                    }
-                }
-            } catch (error) {
-                console.log('Loading from localStorage fallback:', error.message);
-            }
-            
-            // Load from localStorage (either from Firebase or existing data)
-            const profile = JSON.parse(localStorage.getItem('profile') || '{}');
-            
-            // Update hero section
-            const heroName = document.getElementById('heroName');
-            const heroBio = document.getElementById('heroBio');
-            const profilePic = document.getElementById('profilePic');
-            
-            if (heroName) heroName.textContent = profile.name || 'Charls Sy Reyes';
-            if (heroBio) heroBio.textContent = profile.bio || 'Creative Computing Student';
-            if (profilePic && profile.profilePic) {
-                profilePic.src = profile.profilePic;
-            }
-        }
-
-        // Enhanced updateProfile function to ensure consistency:
-        async function updateProfile() {
-            if (!adminAuthenticated) {
-                alert('Please login as admin first');
-                return;
-            }
-            
-            const profile = {
-                name: document.getElementById('adminName').value || 'Charls Sy Reyes',
-                bio: document.getElementById('adminBio').value || 'Creative Computing Student',
-                profilePic: document.getElementById('adminProfilePic').value || '',
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            try {
-                // Save to Firebase
-                await db.collection('admin').doc('profile').set(profile);
-                
-                // Update localStorage
-                localStorage.setItem('profile', JSON.stringify(profile));
-                
-                // Reload profile to update the page
-                loadProfile();
-                
-                alert('Profile updated successfully!');
-            } catch (error) {
-                console.error('Error updating profile:', error);
-                alert('Error updating profile: ' + error.message);
-            }
-        }
-
-        // Close modal when clicking outside
+        // Event listeners for modals and panel
         document.getElementById('imageModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeModal();
             }
         });
 
-        // Close admin panel when clicking outside
         document.addEventListener('click', function(e) {
             const adminPanel = document.getElementById('adminPanel');
             const adminToggle = document.querySelector('.admin-toggle');
@@ -1092,7 +1101,6 @@
             }
         });
 
-        // Keyboard shortcuts
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeModal();
@@ -1100,13 +1108,7 @@
             }
         });
 
-        // Initialize theme and gallery on load
-        window.addEventListener('load', () => {
-            loadTheme();
-            loadGallery();
-        });
-
-        // Add some interactive elements
+        // Interactive skill tags
         document.querySelectorAll('.skill-tag').forEach(tag => {
             tag.addEventListener('click', () => {
                 tag.style.transform = 'scale(0.95)';
@@ -1114,6 +1116,14 @@
                     tag.style.transform = '';
                 }, 150);
             });
+        });
+
+        // Cleanup listeners on page unload
+        window.addEventListener('beforeunload', () => {
+            if (profileListener) profileListener();
+            if (socialLinksListener) socialLinksListener();
+            if (galleryListener) galleryListener();
+            if (themeListener) themeListener();
         });
     </script>
 
@@ -1209,6 +1219,50 @@
         
         .checkbox-group input[type="checkbox"] {
             width: auto;
+        }
+
+        /* Dark mode compatibility for social links */
+        body.dark-mode .social-link {
+            background: #555;
+        }
+
+        body.dark-mode .social-link:hover {
+            background: #777;
+        }
+
+        /* Dark mode styles for admin panel */
+        body.dark-mode .admin-panel {
+            background: #2d2d2d;
+        }
+
+        body.dark-mode .admin-panel h2 {
+            color: #ffffff;
+        }
+
+        body.dark-mode .admin-panel p {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .admin-section {
+            background: #3d3d3d;
+            border-left-color: #007bff;
+            border-bottom-color: #555;
+        }
+
+        body.dark-mode .admin-section h3 {
+            color: #ffffff;
+        }
+
+        body.dark-mode .admin-panel .form-group label {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .admin-panel .form-group input,
+        body.dark-mode .admin-panel .form-group textarea,
+        body.dark-mode .admin-panel .form-group select {
+            background: #4d4d4d;
+            border-color: #666;
+            color: #ffffff;
         }
     </style>
 </body>
