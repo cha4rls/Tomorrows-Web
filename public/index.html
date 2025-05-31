@@ -444,7 +444,7 @@
             }
         }
 
-        // Load profile data (enhanced to load from Firebase)
+        // Load profile data (enhanced to load from Firebase) - FIXED VERSION
         async function loadProfile() {
             try {
                 if (adminAuthenticated) {
@@ -460,14 +460,12 @@
             
             const profile = JSON.parse(localStorage.getItem('profile') || '{}');
             
+            // Update hero section only
             document.getElementById('heroName').textContent = profile.name || 'Your Name';
             document.getElementById('heroBio').textContent = profile.bio || 'Web Developer & Creative Professional';
             document.getElementById('profilePic').src = profile.profilePic || 'https://via.placeholder.com/200x200/333/fff?text=Photo';
-            
-            if (profile.bio && profile.bio !== 'Web Developer & Creative Professional') {
-                document.getElementById('aboutText').textContent = profile.bio;
-            }
         }
+    
 
         // Update social links (enhanced to save to Firebase)
         async function updateSocialLinks() {
