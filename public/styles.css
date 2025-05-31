@@ -218,7 +218,7 @@ nav a:hover::after {
     transform: scale(1.1);
 }
 
-/* Social Links */
+/* Updated Social Links Styles */
 .social-links {
     display: flex;
     justify-content: center;
@@ -238,11 +238,96 @@ nav a:hover::after {
     text-decoration: none;
     transition: all 0.3s ease;
     font-size: 20px;
+    position: relative;
+    overflow: hidden;
 }
 
 .social-link:hover {
     background: #666;
     transform: translateY(-3px);
+}
+
+/* New styles for PNG icons */
+.social-link img {
+    width: 24px;
+    height: 24px;
+    filter: brightness(0) invert(1); /* Makes icons white */
+    transition: all 0.3s ease;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.social-link:hover img {
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Tooltip styles */
+.social-link::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.social-link::before {
+    content: '';
+    position: absolute;
+    bottom: 52px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.social-link:hover::after,
+.social-link:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Dark mode compatibility */
+body.dark-mode .social-link {
+    background: #555;
+}
+
+body.dark-mode .social-link:hover {
+    background: #777;
+}
+
+/* Demo container */
+.demo-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 40px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.demo-container h2 {
+    margin-bottom: 30px;
+    color: #333;
 }
 
 /* Testimonials */
