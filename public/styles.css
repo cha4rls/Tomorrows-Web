@@ -306,7 +306,7 @@ nav a:hover::after {
     visibility: visible;
 }
 
-/* Dark mode compatibility */
+/* Dark mode compatibility for social links */
 body.dark-mode .social-link {
     background: #555;
 }
@@ -619,21 +619,83 @@ body.dark-mode .testimonial-form h3 {
     color: #e0e0e0;
 }
 
+/* Admin Panel Dark Mode */
 body.dark-mode .admin-panel {
     background: #2d2d2d;
 }
 
-body.dark-mode .admin-section h3 {
+body.dark-mode .admin-panel h2 {
+    color: #ffffff;
+}
+
+body.dark-mode .admin-panel p {
     color: #e0e0e0;
+}
+
+body.dark-mode .admin-section {
+    background: #3d3d3d;
+    border-left-color: #007bff;
+    border-bottom-color: #555;
+}
+
+body.dark-mode .admin-section h3 {
+    color: #ffffff;
+}
+
+body.dark-mode .admin-panel .form-group label {
+    color: #e0e0e0;
+}
+
+body.dark-mode .admin-panel .form-group input,
+body.dark-mode .admin-panel .form-group textarea,
+body.dark-mode .admin-panel .form-group select {
+    background: #4d4d4d;
+    border-color: #666;
+    color: #ffffff;
+}
+
+body.dark-mode .admin-panel .form-group input::placeholder,
+body.dark-mode .admin-panel .form-group textarea::placeholder {
+    color: #aaa;
+}
+
+body.dark-mode .admin-panel .form-group input:focus,
+body.dark-mode .admin-panel .form-group textarea:focus,
+body.dark-mode .admin-panel .form-group select:focus {
+    border-color: #007bff;
+}
+
+body.dark-mode #authStatus {
+    background: #3d3d3d;
+    color: #e0e0e0;
+}
+
+body.dark-mode #firebaseAuth {
+    background: #3d3d3d;
+}
+
+body.dark-mode #pendingTestimonials {
+    background: #3d3d3d;
+    color: #e0e0e0;
+}
+
+body.dark-mode #pendingTestimonials > div {
+    background: #4d4d4d !important;
+    color: #e0e0e0 !important;
+    border-left-color: #ff9500 !important;
+}
+
+body.dark-mode .admin-panel div[style*="color: #666"] {
+    color: #aaa !important;
 }
 
 /* Dark mode styles for demo container */
 body.dark-mode .demo-container {
-    background: #2d2d2d; /* Dark grey background */
+    background: #2d2d2d;
 }
 
 body.dark-mode .demo-container h2 {
-    color: #ffffff; /* White text */
+    color: #ffffff;
 }
 
 /* Animations */
